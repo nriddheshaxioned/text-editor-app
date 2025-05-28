@@ -12,7 +12,7 @@ function useExtractTags(editor) {
             const root = $getRoot();
             const text = root.getTextContent();
 
-            console.log(text);
+            console.log("Plain Text Format: ", text);
 
             const mentionMatches = text.match(/@\w+/g) || [];
             const hashtagMatches = text.match(/#\w+/g) || [];

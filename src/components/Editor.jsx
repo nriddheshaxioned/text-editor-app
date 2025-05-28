@@ -8,7 +8,6 @@ import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import {
-  $isTextNode,
   ParagraphNode,
   TextNode,
 } from 'lexical';
@@ -17,79 +16,15 @@ import {
   ListItemNode
 } from "@lexical/list";
 import { HashtagNode } from '@lexical/hashtag';
-import ToolbarPlugin from '../plugins/Toolbar';
-import ExampleTheme from './ExampleTheme';
 
-import { parseAllowedColor, parseAllowedFontSize } from '../lib/styleConfig';
+import ExampleTheme from './ExampleTheme';
 import MyEditor from './MyEditor';
 
 
 const placeholder = 'Enter some rich text...';
 
-const getExtraStyles = (element) => {
-  let extraStyles = '';
-  const fontSize = parseAllowedFontSize(element.style.fontSize);
-  const backgroundColor = parseAllowedColor(element.style.backgroundColor);
-  const color = parseAllowedColor(element.style.color);
-  if (fontSize !== '' && fontSize !== '15px') {
-    extraStyles += `font-size: ${fontSize};`;
-  }
-  if (backgroundColor !== '' && backgroundColor !== 'rgb(255, 255, 255)') {
-    extraStyles += `background-color: ${backgroundColor};`;
-  }
-  if (color !== '' && color !== 'rgb(0, 0, 0)') {
-    extraStyles += `color: ${color};`;
-  }
-  return extraStyles;
-};
-
-const constructImportMap = () => {
-  const importMap = {};
-  for (const [tag, fn] of Object.entries(TextNode.importDOM() || {})) {
-    importMap[tag] = (importNode) => {
-      const importer = fn(importNode);
-      if (!importer) {
-        return null;
-      }
-      return {
-        ...importer,
-        conversion: (element) => {
-          const output = importer.conversion(element);
-          if (
-            output === null ||
-            output.forChild === undefined ||
-            output.after !== undefined ||
-            output.node !== null
-          ) {
-            return output;
-          }
-          const extraStyles = getExtraStyles(element);
-          if (extraStyles) {
-            const { forChild } = output;
-            return {
-              ...output,
-              forChild: (child, parent) => {
-                const textNode = forChild(child, parent);
-                if ($isTextNode(textNode)) {
-                  textNode.setStyle(textNode.getStyle() + extraStyles);
-                }
-                return textNode;
-              },
-            };
-          }
-          return output;
-        },
-      };
-    };
-  }
-
-  return importMap;
-};
 
 const editorConfig = {
-  html: {
-    import: constructImportMap(),
-  },
   namespace: 'Rich Text Editor Demo',
   nodes: [ParagraphNode, TextNode, HashtagNode, ListNode, ListItemNode],
   onError(error) {
@@ -102,7 +37,6 @@ const Editor = () => {
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className="editor-container">
-        <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin
             contentEditable={

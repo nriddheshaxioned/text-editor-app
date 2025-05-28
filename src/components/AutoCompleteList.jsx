@@ -1,26 +1,10 @@
-const AutoCompleteList = ({ options, onSelect }) => {
+const AutoCompleteList = ({ options, onSelect, activeIndex }) => {
     return (
-        <ul
-            style={{
-                border: "1px solid #ccc",
-                borderRadius: 8,
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                display: "block",
-                zIndex: 100,
-                listStyle: "none",
-                margin: 0,
-                padding: "4px",
-                position: "absolute",
-                background: "white",
-                maxHeight: 100,
-                overflowY: "auto",
-                width: "200px",
-            }}
-        >
-            {options.map((item, index) => (
+        <ul className="w-[200px] block list-none z-50 p-2 border-1 border-gray-200 absolute bg-white max-h-[140] rounded-md shadow-2xl overflow-y-auto border-box list-inside-none">
+            {options.length > 0 ? options.map((item, index) => (
                 <li
                     key={index}
-                    style={{ padding: "4px", cursor: "pointer" }}
+                    className={`p-1 cursor-pointer ${index === activeIndex ? "bg-blue-100" : "bg-white"}`}
                     onMouseDown={(e) => {
                         e.preventDefault();
                         onSelect(item);
@@ -28,9 +12,9 @@ const AutoCompleteList = ({ options, onSelect }) => {
                 >
                     {item}
                 </li>
-            ))}
+            )) : "No suggestions found."}
         </ul>
     );
-}
+};
 
 export default AutoCompleteList;

@@ -62,7 +62,6 @@ export default function ToolbarPlugin() {
   useEffect(() => {
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
-        console.log('DATA', editorState.toJSON())
         editorState.read(() => {
           $updateToolbar();
         });

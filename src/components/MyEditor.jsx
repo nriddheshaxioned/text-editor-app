@@ -2,11 +2,12 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import AutoCompleteList from "./AutoCompleteList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useExtractTags from "@/hooks/useExtractTags";
-import { $getRoot, $getSelection, TextNode } from "lexical";
+import { $getRoot, $getSelection, KEY_DOWN_COMMAND, TextNode } from "lexical";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { Button } from "./ui/button";
+import useHandleExport from "@/hooks/useHandleExport";
 
 
 const dummyTopics = ["#climate", "#sports", "#tech"];
@@ -15,22 +16,56 @@ const dummyUsers = ["@alice", "@bob", "@charlie", "@dave"];
 
 const MyEditor = () => {
     const [editor] = useLexicalComposerContext();
+    const { mentions, hashtags, extract } = useExtractTags(editor);
+    const { handleExport } = useHandleExport(editor);
 
     const [text, setText] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [trigger, setTrigger] = useState(null);
     const [query, setQuery] = useState("");
+    const [activeIndex, setActiveIndex] = useState(0);
 
-    const { mentions, hashtags, extract } = useExtractTags(editor);
+    useEffect(() => {
+        return editor.registerCommand(
+            KEY_DOWN_COMMAND,
+            (event) => {
+                if (!showSuggestions) return false;
+
+                if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    setActiveIndex((prev) =>
+                        prev < suggestions.length - 1 ? prev + 1 : 0
+                    );
+                    return true;
+                } else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    setActiveIndex((prev) =>
+                        prev > 0 ? prev - 1 : suggestions.length - 1
+                    );
+                    return true;
+                } else if (event.key === "Enter") {
+                    event.preventDefault();
+                    if (suggestions[activeIndex]) {
+                        onSelectSuggestion(suggestions[activeIndex]);
+                        return true;
+                    }
+                } else if (event.key === "Escape") {
+                    setShowSuggestions(false);
+                    return true;
+                }
+
+                return false;
+            },
+            0
+        );
+    }, [editor, showSuggestions, suggestions, activeIndex]);
+
 
     function onChange(editorState) {
         editorState.read(() => {
             const root = $getRoot();
             const textContent = root.getTextContent();
-
-            console.log("ONCHANGE -->", root);
-
             setText(textContent);
 
             const selection = $getSelection();
@@ -74,6 +109,7 @@ const MyEditor = () => {
             setShowSuggestions(false);
             setTrigger(null);
             setQuery("");
+            setActiveIndex(0);
         });
     }
 
@@ -109,22 +145,27 @@ const MyEditor = () => {
         });
     }
 
+    const handleExtractClick = () => {
+        extract();
+        handleExport();
+    }
+
     return (
         <div className="mx-2 my-4">
             <OnChangePlugin onChange={onChange} />
 
             {showSuggestions && (
-                <AutoCompleteList options={suggestions} onSelect={onSelectSuggestion} />
+                <AutoCompleteList options={suggestions} onSelect={onSelectSuggestion} activeIndex={activeIndex} />
             )}
 
-            <div style={{ marginBottom: 8 }}>
-                <Button onClick={extract}>Extract</Button>
+            <div className="py-2">
+                <Button onClick={handleExtractClick}>Extract</Button>
             </div>
             <div>
-                <strong>Mentions:</strong> {mentions.join(", ")}
+                <span className="text-gray-600 text-sm">Mentions:</span> {mentions.join(", ")}
             </div>
             <div>
-                <strong>Hashtags:</strong> {hashtags.join(", ")}
+                <span className="text-gray-600 text-sm">Hashtags:</span> {hashtags.join(", ")}
             </div>
         </div>
     );
