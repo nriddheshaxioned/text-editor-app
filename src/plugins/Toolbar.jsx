@@ -14,8 +14,13 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
+import {
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+  $isListNode,
+} from "@lexical/list";
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Redo, Strikethrough, Underline, Undo } from 'lucide-react';
+import { Bold, Italic, List, Redo, Strikethrough, Underline, Undo } from 'lucide-react';
 
 const LowPriority = 1;
 
@@ -32,6 +37,7 @@ export default function ToolbarPlugin() {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isUnorderedList, setIsUnorderedList] = useState(false);
 
 
   const $updateToolbar = useCallback(() => {
@@ -41,6 +47,15 @@ export default function ToolbarPlugin() {
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
+
+      const anchorNode = selection.anchor.getNode();
+      const parent = anchorNode.getParent();
+      const grandParent = parent?.getParent();
+      const possibleListNode = $isListNode(parent) ? parent : $isListNode(grandParent) ? grandParent : null;
+
+      setIsUnorderedList(
+        possibleListNode != null && possibleListNode.getListType?.() === 'bullet'
+      );
     }
   }, []);
 
@@ -146,6 +161,21 @@ export default function ToolbarPlugin() {
 
       <Divider />
 
+      <Button
+        variant='secondary'
+        aria-label="Format Unordered List"
+        className={'toolbar-item spaced ' + (isUnorderedList ? 'active' : '')}
+        onClick={() => {
+          if (isUnorderedList) {
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+          } else {
+            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+          }
+        }}>
+        <List />
+      </Button>
+
+      <Divider />
     </div>
   );
 }

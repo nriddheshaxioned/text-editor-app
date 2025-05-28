@@ -5,14 +5,17 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import {
-  $getRoot,
-  $getSelection,
   $isTextNode,
   ParagraphNode,
   TextNode,
 } from 'lexical';
+import {
+  ListNode,
+  ListItemNode
+} from "@lexical/list";
 import { HashtagNode } from '@lexical/hashtag';
 import ToolbarPlugin from '../plugins/Toolbar';
 import ExampleTheme from './ExampleTheme';
@@ -88,7 +91,7 @@ const editorConfig = {
     import: constructImportMap(),
   },
   namespace: 'Rich Text Editor Demo',
-  nodes: [ParagraphNode, TextNode, HashtagNode],
+  nodes: [ParagraphNode, TextNode, HashtagNode, ListNode, ListItemNode],
   onError(error) {
     throw error;
   },
@@ -96,7 +99,6 @@ const editorConfig = {
 };
 
 const Editor = () => {
-
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className="editor-container">
@@ -116,9 +118,9 @@ const Editor = () => {
           />
 
           <MyEditor />
-
           <HistoryPlugin />
           <HashtagPlugin />
+          <ListPlugin />
           <AutoFocusPlugin />
         </div>
       </div>
