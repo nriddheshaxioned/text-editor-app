@@ -1,32 +1,35 @@
 "use client"
+import { HashtagNode } from '@lexical/hashtag';
+import { AutoLinkNode, LinkNode, } from "@lexical/link";
+import {
+  ListItemNode,
+  ListNode
+} from "@lexical/list";
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import {
   ParagraphNode,
   TextNode,
 } from 'lexical';
-import {
-  ListNode,
-  ListItemNode
-} from "@lexical/list";
-import { HashtagNode } from '@lexical/hashtag';
 
+import AutoLinkPlugin from '@/plugins/AutoLinkPlugin';
 import ExampleTheme from './ExampleTheme';
 import MyEditor from './MyEditor';
 
 
 const placeholder = 'Enter some rich text...';
 
-
 const editorConfig = {
   namespace: 'Rich Text Editor Demo',
-  nodes: [ParagraphNode, TextNode, HashtagNode, ListNode, ListItemNode],
+  nodes: [ParagraphNode, TextNode, HashtagNode, ListNode, ListItemNode, LinkNode, AutoLinkNode],
   onError(error) {
     throw error;
   },
@@ -55,6 +58,9 @@ const Editor = () => {
           <HistoryPlugin />
           <HashtagPlugin />
           <ListPlugin />
+          <LinkPlugin />
+          <AutoLinkPlugin />
+          <ClickableLinkPlugin />
           <AutoFocusPlugin />
         </div>
       </div>

@@ -1,9 +1,12 @@
 "use client";
 
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getRoot } from "lexical";
 import { useCallback, useState } from "react";
 
-function useExtractTags(editor) {
+function useExtractTags() {
+    const [editor] = useLexicalComposerContext();
+
     const [mentions, setMentions] = useState([]);
     const [hashtags, setHashtags] = useState([]);
 

@@ -1,6 +1,9 @@
 import { $generateHtmlFromNodes } from '@lexical/html';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
-const useHandleExport = (editor) => {
+const useHandleExport = () => {
+  const [editor] = useLexicalComposerContext();
+  
   const handleExport = () => {
     editor.update(() => {
       const editorState = editor.getEditorState();

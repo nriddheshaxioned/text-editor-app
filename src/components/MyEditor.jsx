@@ -1,23 +1,23 @@
 "use client";
 
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import AutoCompleteList from "./AutoCompleteList";
-import { useEffect, useState } from "react";
 import useExtractTags from "@/hooks/useExtractTags";
-import { $getRoot, $getSelection, KEY_DOWN_COMMAND, TextNode } from "lexical";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { Button } from "./ui/button";
 import useHandleExport from "@/hooks/useHandleExport";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { $getRoot, $getSelection, KEY_DOWN_COMMAND, TextNode } from "lexical";
+import { useEffect, useState } from "react";
+import AutoCompleteList from "./AutoCompleteList";
+import { Button } from "./ui/button";
 
 
-const dummyTopics = ["#climate", "#sports", "#tech"];
-const dummyUsers = ["@alice", "@bob", "@charlie", "@dave"];
+const DUMMY_USERS = ["@alice", "@bob", "@charlie", "@dave"];
+const DUMMY_TOPICS = ["#climate", "#sports", "#tech"];
 
 
 const MyEditor = () => {
     const [editor] = useLexicalComposerContext();
-    const { mentions, hashtags, extract } = useExtractTags(editor);
-    const { handleExport } = useHandleExport(editor);
+    const { mentions, hashtags, extract } = useExtractTags();
+    const { handleExport } = useHandleExport();
 
     const [text, setText] = useState("");
     const [suggestions, setSuggestions] = useState([]);
@@ -62,7 +62,7 @@ const MyEditor = () => {
     }, [editor, showSuggestions, suggestions, activeIndex]);
 
 
-    function onChange(editorState) {
+    const onChange = (editorState) => {
         editorState.read(() => {
             const root = $getRoot();
             const textContent = root.getTextContent();
@@ -89,14 +89,14 @@ const MyEditor = () => {
 
                             if (char === "@") {
                                 setSuggestions(
-                                    dummyUsers.filter((u) =>
-                                        u.toLowerCase().includes(currentQuery.toLowerCase())
+                                    DUMMY_USERS.filter((user) =>
+                                        user.toLowerCase().includes(currentQuery.toLowerCase())
                                     )
                                 );
                             } else if (char === "#") {
                                 setSuggestions(
-                                    dummyTopics.filter((t) =>
-                                        t.toLowerCase().includes(currentQuery.toLowerCase())
+                                    DUMMY_TOPICS.filter((topic) =>
+                                        topic.toLowerCase().includes(currentQuery.toLowerCase())
                                     )
                                 );
                             }
@@ -113,7 +113,7 @@ const MyEditor = () => {
         });
     }
 
-    function onSelectSuggestion(suggestion) {
+    const onSelectSuggestion = (suggestion) => {
         editor.update(() => {
             const selection = $getSelection();
             if (selection && selection.isCollapsed()) {
@@ -158,7 +158,7 @@ const MyEditor = () => {
                 <AutoCompleteList options={suggestions} onSelect={onSelectSuggestion} activeIndex={activeIndex} />
             )}
 
-            <div className="py-2">
+            {/* <div className="py-2">
                 <Button onClick={handleExtractClick}>Extract</Button>
             </div>
             <div>
@@ -166,7 +166,7 @@ const MyEditor = () => {
             </div>
             <div>
                 <span className="text-gray-600 text-sm">Hashtags:</span> {hashtags.join(", ")}
-            </div>
+            </div> */}
         </div>
     );
 }
