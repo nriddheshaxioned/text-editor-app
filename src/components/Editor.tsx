@@ -30,7 +30,7 @@ const placeholder = 'Enter some rich text...';
 const editorConfig = {
   namespace: 'Rich Text Editor Demo',
   nodes: [ParagraphNode, TextNode, HashtagNode, ListNode, ListItemNode, LinkNode, AutoLinkNode],
-  onError(error) {
+  onError(error: Error) {
     throw error;
   },
   theme: ExampleTheme,
