@@ -1,7 +1,7 @@
 const MIN_ALLOWED_FONT_SIZE = 8;
 const MAX_ALLOWED_FONT_SIZE = 72;
 
-export const parseAllowedFontSize = (input) => {
+export const parseAllowedFontSize = (input: string) => {
   const match = input.match(/^(\d+(?:\.\d+)?)px$/);
   if (match) {
     const n = Number(match[1]);
@@ -12,6 +12,6 @@ export const parseAllowedFontSize = (input) => {
   return '';
 };
 
-export function parseAllowedColor(input) {
+export function parseAllowedColor(input: string) {
   return /^rgb\(\d+, \d+, \d+\)$/.test(input) ? input : '';
 }

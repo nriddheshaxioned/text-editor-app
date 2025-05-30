@@ -16,7 +16,7 @@ export const metadata = {
   description: "Rich Text Editor App created using Lexical",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body

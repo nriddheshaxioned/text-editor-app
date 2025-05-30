@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import {
+  $isListNode,
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+} from "@lexical/list";
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import {
@@ -14,12 +20,6 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
-import {
-  INSERT_UNORDERED_LIST_COMMAND,
-  REMOVE_LIST_COMMAND,
-  $isListNode,
-} from "@lexical/list";
-import { Button } from '@/components/ui/button';
 import { Bold, Italic, List, Redo, Strikethrough, Underline, Undo } from 'lucide-react';
 
 const LowPriority = 1;
@@ -28,7 +28,7 @@ const Divider = () => {
   return <div className="divider" />;
 }
 
-export default function ToolbarPlugin() {
+const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
   const [canUndo, setCanUndo] = useState(false);
@@ -97,6 +97,7 @@ export default function ToolbarPlugin() {
     <div className="toolbar" ref={toolbarRef}>
       <Button
         variant='seconday'
+        size='xl'
         aria-label="Undo"
         className="toolbar-item spaced"
         disabled={!canUndo}
@@ -107,6 +108,7 @@ export default function ToolbarPlugin() {
 
       <Button
         variant='seconday'
+        size='xl'
         aria-label="Redo"
         className="toolbar-item"
         disabled={!canRedo}
@@ -119,6 +121,7 @@ export default function ToolbarPlugin() {
 
       <Button
         variant="secondary"
+        size='xl'
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
@@ -129,6 +132,7 @@ export default function ToolbarPlugin() {
 
       <Button
         variant="secondary"
+        size='xl'
         aria-label="Format Italics"
         className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
         onClick={() => {
@@ -140,6 +144,7 @@ export default function ToolbarPlugin() {
 
       <Button
         variant="secondary"
+        size='xl'
         aria-label="Format Underline"
         className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
         onClick={() => {
@@ -150,6 +155,7 @@ export default function ToolbarPlugin() {
 
       <Button
         variant='secondary'
+        size='xl'
         aria-label="Format Strikethrough"
         className={'toolbar-item spaced ' + (isStrikethrough ? 'active' : '')}
         onClick={() => {
@@ -162,6 +168,7 @@ export default function ToolbarPlugin() {
 
       <Button
         variant='secondary'
+        size='xl'
         aria-label="Format Unordered List"
         className={'toolbar-item spaced ' + (isUnorderedList ? 'active' : '')}
         onClick={() => {
@@ -178,3 +185,5 @@ export default function ToolbarPlugin() {
     </div>
   );
 }
+
+export default ToolbarPlugin;
