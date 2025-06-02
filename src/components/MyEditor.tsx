@@ -4,11 +4,9 @@ import useExtractTags from "@/hooks/useExtractTags";
 import useHandleExport from "@/hooks/useHandleExport";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { $getRoot, $getSelection, $isRangeSelection, EditorState, KEY_DOWN_COMMAND, TextNode } from "lexical";
+import { $getSelection, $isRangeSelection, EditorState, KEY_DOWN_COMMAND, TextNode } from "lexical";
 import { KeyboardEvent, useEffect, useState } from "react";
 import AutoCompleteList from "./AutoCompleteList";
-import { Button } from "./ui/button";
-
 
 const DUMMY_USERS = ["@alice", "@bob", "@charlie", "@dave"];
 const DUMMY_TOPICS = ["#climate", "#sports", "#tech"];
@@ -18,11 +16,9 @@ const MyEditor = () => {
     const { mentions, hashtags, extract } = useExtractTags();
     const { handleExport } = useHandleExport();
 
-    const [text, setText] = useState<string>("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
     const [trigger, setTrigger] = useState<"@" | "#" | null>(null);
-    const [query, setQuery] = useState<string>("");
     const [activeIndex, setActiveIndex] = useState<number>(0);
 
     useEffect(() => {
@@ -62,9 +58,6 @@ const MyEditor = () => {
 
     const onChange = (editorState: EditorState) => {
         editorState.read(() => {
-            const root = $getRoot();
-            const textContent = root.getTextContent();
-            setText(textContent);
 
             const selection = $getSelection();
             if ($isRangeSelection(selection) &&  selection.isCollapsed()) {
@@ -83,7 +76,6 @@ const MyEditor = () => {
                         const currentQuery = textBefore.slice(index + 1);
                         if (/^\w*$/.test(currentQuery)) {
                             setTrigger(char);
-                            setQuery(currentQuery);
 
                             if (char === "@") {
                                 setSuggestions(
@@ -107,7 +99,6 @@ const MyEditor = () => {
 
             setShowSuggestions(false);
             setTrigger(null);
-            setQuery("");
             setActiveIndex(0);
         });
     };
@@ -138,7 +129,6 @@ const MyEditor = () => {
 
                     setShowSuggestions(false);
                     setTrigger(null);
-                    setQuery("");
                 }
             }
         });
