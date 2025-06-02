@@ -4,30 +4,25 @@ import useExtractTags from "@/hooks/useExtractTags";
 import useHandleExport from "@/hooks/useHandleExport";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { $getRoot, $getSelection, KEY_DOWN_COMMAND, TextNode } from "lexical";
-import { useEffect, useState } from "react";
+import { $getSelection, $isRangeSelection, EditorState, KEY_DOWN_COMMAND, TextNode } from "lexical";
+import { KeyboardEvent, useEffect, useState } from "react";
 import AutoCompleteList from "./AutoCompleteList";
-import { Button } from "./ui/button";
-
 
 const DUMMY_USERS = ["@alice", "@bob", "@charlie", "@dave"];
 const DUMMY_TOPICS = ["#climate", "#sports", "#tech"];
-
 
 const MyEditor = () => {
     const [editor] = useLexicalComposerContext();
     const { mentions, hashtags, extract } = useExtractTags();
     const { handleExport } = useHandleExport();
 
-    const [text, setText] = useState("");
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const [trigger, setTrigger] = useState(null);
-    const [query, setQuery] = useState("");
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+    const [trigger, setTrigger] = useState<"@" | "#" | null>(null);
+    const [activeIndex, setActiveIndex] = useState<number>(0);
 
     useEffect(() => {
-        return editor.registerCommand(
+        return editor.registerCommand<KeyboardEvent>(
             KEY_DOWN_COMMAND,
             (event) => {
                 if (!showSuggestions) return false;
@@ -61,15 +56,11 @@ const MyEditor = () => {
         );
     }, [editor, showSuggestions, suggestions, activeIndex]);
 
-
-    const onChange = (editorState) => {
+    const onChange = (editorState: EditorState) => {
         editorState.read(() => {
-            const root = $getRoot();
-            const textContent = root.getTextContent();
-            setText(textContent);
 
             const selection = $getSelection();
-            if (selection && selection.isCollapsed()) {
+            if ($isRangeSelection(selection) &&  selection.isCollapsed()) {
                 const anchor = selection.anchor;
                 const node = anchor.getNode();
                 if (node instanceof TextNode) {
@@ -79,13 +70,12 @@ const MyEditor = () => {
                     const atIndex = textBefore.lastIndexOf("@");
                     const hashIndex = textBefore.lastIndexOf("#");
 
-                    let index = Math.max(atIndex, hashIndex);
+                    const index = Math.max(atIndex, hashIndex);
                     if (index !== -1) {
-                        const char = textBefore[index];
+                        const char = textBefore[index] as "@" | "#";
                         const currentQuery = textBefore.slice(index + 1);
                         if (/^\w*$/.test(currentQuery)) {
                             setTrigger(char);
-                            setQuery(currentQuery);
 
                             if (char === "@") {
                                 setSuggestions(
@@ -106,21 +96,21 @@ const MyEditor = () => {
                     }
                 }
             }
+
             setShowSuggestions(false);
             setTrigger(null);
-            setQuery("");
             setActiveIndex(0);
         });
-    }
+    };
 
-    const onSelectSuggestion = (suggestion) => {
+    const onSelectSuggestion = (suggestion: string) => {
         editor.update(() => {
             const selection = $getSelection();
-            if (selection && selection.isCollapsed()) {
+            if ($isRangeSelection(selection) &&  selection.isCollapsed()) {
                 const anchor = selection.anchor;
                 const node = anchor.getNode();
 
-                if (node instanceof TextNode) {
+                if (node instanceof TextNode && trigger) {
                     const offset = anchor.offset;
                     const textContent = node.getTextContent();
 
@@ -139,36 +129,48 @@ const MyEditor = () => {
 
                     setShowSuggestions(false);
                     setTrigger(null);
-                    setQuery("");
                 }
             }
         });
-    }
+    };
 
     const handleExtractClick = () => {
         extract();
         handleExport();
-    }
+    };
 
     return (
         <div className="mx-2 my-4">
             <OnChangePlugin onChange={onChange} />
 
             {showSuggestions && (
-                <AutoCompleteList options={suggestions} onSelect={onSelectSuggestion} activeIndex={activeIndex} />
+                <AutoCompleteList
+                    options={suggestions}
+                    onSelect={onSelectSuggestion}
+                    activeIndex={activeIndex}
+                />
             )}
 
             {/* <div className="py-2">
-                <Button onClick={handleExtractClick}>Extract</Button>
+                <Button
+                    className="bg-primary text-primary-foreground"
+                    variant="default"
+                    size="default"
+                    onClick={handleExtractClick}
+                >
+                    Extract
+                </Button>
             </div>
             <div>
-                <span className="text-gray-600 text-sm">Mentions:</span> {mentions.join(", ")}
+                <span className="text-gray-600 text-sm">Mentions:</span>{" "}
+                {mentions.join(", ")}
             </div>
             <div>
-                <span className="text-gray-600 text-sm">Hashtags:</span> {hashtags.join(", ")}
+                <span className="text-gray-600 text-sm">Hashtags:</span>{" "}
+                {hashtags.join(", ")}
             </div> */}
         </div>
     );
-}
+};
 
 export default MyEditor;
